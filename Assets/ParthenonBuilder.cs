@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class ParthenonBuilder : MonoBehaviour {
     public GameObject cubePrefab;
-    public GameObject pillar;
+    public GameObject cylinderPrefab;
     public float floorWidth;
     public float floorDepth;
     public float floorHeight;
@@ -21,6 +21,7 @@ public class ParthenonBuilder : MonoBehaviour {
 
     private float topWidth;
     private float topDepth;
+    [ContextMenu("Destroy")]
     private void DestroyAll()
     {
         //하이알키 상에서 하위에 있는 애들을 돌면서 뽑아내는 그것 다만 여기에선 transform자체를 뽑아내는 것인지라 .gameObject를 추가해주는 것이다. 
@@ -35,13 +36,15 @@ public class ParthenonBuilder : MonoBehaviour {
     {
         DestroyAll();
         Stairs();
-        Roof();
+        Pillars();
+        //Roof();
     }
 
     void Stairs()
     {
         var stairs = new GameObject("Stairs");
         stairs.transform.parent = transform;
+        stairs.transform.position = new Vector3(0,0,0);
         for (int i = 0; i < stairCount; i++)
         {
             topWidth = floorWidth * Mathf.Pow(0.9f, i);
@@ -49,7 +52,7 @@ public class ParthenonBuilder : MonoBehaviour {
             var stair = Instantiate(cubePrefab, stairs.transform);
             stair.name = "Stair (" + (i + 1) + ")";
             var tr = stair.GetComponent<Transform>();
-            tr.position = new Vector3(0, floorHeight/2 + floorHeight * i, 0);
+            tr.position = new Vector3(0, floorHeight * i, 0);
             tr.localScale = new Vector3(topWidth, floorHeight, topDepth);
         }
         foreach (MeshRenderer m in stairs.GetComponentsInChildren<MeshRenderer>())
@@ -65,5 +68,20 @@ public class ParthenonBuilder : MonoBehaviour {
         roof.transform.position = new Vector3(0, roofHeight/2 + floorHeight*stairCount + pillarHeight, 0);
         roof.transform.localScale = new Vector3(topWidth, roofHeight, topDepth);
         roof.GetComponent<MeshRenderer>().material = roofMaterial;
+    }
+    
+    void Pillars()
+    {
+        HPillars(new Vector3((pillarRadius - topWidth)/2, floorHeight*stairCount, (pillarRadius-  topDepth)/2));
+    }
+    void HPillars(Vector3 startP)
+    {
+        var pillar = Instantiate(cylinderPrefab, transform);
+        pillar.transform.position = startP;
+        pillar.transform.localScale = new Vector3(pillarRadius, pillarHeight, pillarRadius);
+    }
+    void VPillars(Vector3 start)
+    {
+
     }
 }

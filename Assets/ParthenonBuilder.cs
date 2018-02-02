@@ -21,6 +21,11 @@ public class ParthenonBuilder : MonoBehaviour {
 
     private float topWidth;
     private float topDepth;
+
+    private void FixedUpdate()
+    {
+        Build();
+    }
     [ContextMenu("Destroy")]
     private void DestroyAll()
     {
@@ -37,14 +42,14 @@ public class ParthenonBuilder : MonoBehaviour {
         DestroyAll();
         Stairs();
         Pillars();
-        //Roof();
+        Roof();
     }
 
     void Stairs()
     {
         var stairs = new GameObject("Stairs");
         stairs.transform.parent = transform;
-        stairs.transform.position = new Vector3(0,0,0);
+        stairs.transform.localPosition = new Vector3(0,0,0);
         for (int i = 0; i < stairCount; i++)
         {
             topWidth = floorWidth * Mathf.Pow(0.9f, i);
@@ -52,7 +57,7 @@ public class ParthenonBuilder : MonoBehaviour {
             var stair = Instantiate(cubePrefab, stairs.transform);
             stair.name = "Stair (" + (i + 1) + ")";
             var tr = stair.GetComponent<Transform>();
-            tr.position = new Vector3(0, floorHeight * i, 0);
+            tr.localPosition = new Vector3(0, floorHeight * i, 0);
             tr.localScale = new Vector3(topWidth, floorHeight, topDepth);
         }
         foreach (MeshRenderer m in stairs.GetComponentsInChildren<MeshRenderer>())
@@ -65,29 +70,35 @@ public class ParthenonBuilder : MonoBehaviour {
     {
         var roof = Instantiate(cubePrefab, transform);
         roof.name = "Roof";
-        roof.transform.position = new Vector3(0, roofHeight/2 + floorHeight*stairCount + pillarHeight, 0);
+        roof.transform.localPosition = new Vector3(0, floorHeight*stairCount + pillarHeight, 0);
         roof.transform.localScale = new Vector3(topWidth, roofHeight, topDepth);
-        roof.GetComponent<MeshRenderer>().material = roofMaterial;
+        roof.GetComponentInChildren<MeshRenderer>().material = roofMaterial;
     }
     
     void Pillars()
     {
         var pillars = new GameObject("Pillars");
         pillars.transform.parent = transform;
-        HPillars(new Vector3((pillarRadius - topWidth)/2, floorHeight*stairCount, (pillarRadius-  topDepth)/2), pillars.transform);
+        pillars.transform.localPosition = new Vector3(0, 0, 0);
+        HPillars(new Vector3((pillarRadius - topWidth)/2, floorHeight*stairCount, (pillarRadius-topDepth)/2), pillars.transform);
         HPillars(new Vector3((pillarRadius - topWidth) / 2, floorHeight*stairCount, (topDepth- pillarRadius) /2), pillars.transform);
-       // VPillars(new Vector3((pillarRadius - topWidth) / 2, floorHeight * stairCount, (pillarRadius - topDepth) / 2), pillars.transform);
-        //VPillars(new Vector3((topWidth - pillarRadius) / 2, floorHeight * stairCount, (pillarRadius - topDepth) / 2), pillars.transform);
+        VPillars(new Vector3((pillarRadius - topWidth) / 2, floorHeight * stairCount, (pillarRadius - topDepth) / 2), pillars.transform);
+        VPillars(new Vector3((topWidth - pillarRadius) / 2, floorHeight * stairCount, (pillarRadius - topDepth) / 2), pillars.transform);
+        foreach (MeshRenderer m in pillars.GetComponentsInChildren<MeshRenderer>())
+        {
+            m.material = pillarMaterial;
+        }
     }
     void HPillars(Vector3 start, Transform tr)
     {
         var pillars = new GameObject("Pillars(H)");
         pillars.transform.parent = tr;
+        pillars.transform.localPosition = new Vector3(0, 0, 0);
         float hSpace = (topWidth - pillarRadius) / (pillarCountWidth - 1);
         for (int i = 0; i < pillarCountWidth; i++)
         {
             var pillar = Instantiate(cylinderPrefab, pillars.transform);
-            pillar.transform.position = start;
+            pillar.transform.localPosition = start;
             pillar.transform.localScale = new Vector3(pillarRadius, pillarHeight, pillarRadius);
             start.x += hSpace;
         }
@@ -96,11 +107,12 @@ public class ParthenonBuilder : MonoBehaviour {
     {
         var pillars = new GameObject("Pillars(V)");
         pillars.transform.parent = tr;
+        pillars.transform.localPosition = new Vector3(0, 0, 0);
         float vSpace = (topDepth - pillarRadius) / (pillarCountDepth - 1);
-        for (int i = 0; i < pillarCountWidth; i++)
+        for (int i = 0; i < pillarCountDepth; i++)
         {
             var pillar = Instantiate(cylinderPrefab, pillars.transform);
-            pillar.transform.position = start;
+            pillar.transform.localPosition = start;
             pillar.transform.localScale = new Vector3(pillarRadius, pillarHeight, pillarRadius);
             start.z += vSpace;
         }
